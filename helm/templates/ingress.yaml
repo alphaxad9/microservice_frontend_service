@@ -2,16 +2,17 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ include "helm.fullname" . }}
+  name: {{ include "helm.appname" (dict "ctx" $ "svc" "frontend") }}
   labels:
-    {{- include "helm.labels" . | nindent 4 }}
+    app: {{ include "helm.appname" (dict "ctx" $ "svc" "frontend") }}
+    app.kubernetes.io/component: frontend
   {{- with .Values.ingress.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
-  {{- with .Values.ingress.className }}
-  ingressClassName: {{ . }}
+  {{- if .Values.ingress.ingressClassName }}
+  ingressClassName: {{ .Values.ingress.ingressClassName }}
   {{- end }}
   {{- if .Values.ingress.tls }}
   tls:
@@ -30,12 +31,10 @@ spec:
         paths:
           {{- range .paths }}
           - path: {{ .path }}
-            {{- with .pathType }}
-            pathType: {{ . }}
-            {{- end }}
+            pathType: {{ .pathType }}
             backend:
               service:
-                name: {{ include "helm.fullname" $ }}
+                name: {{ include "helm.appname" (dict "ctx" $ "svc" "frontend") }}
                 port:
                   number: {{ $.Values.service.port }}
           {{- end }}

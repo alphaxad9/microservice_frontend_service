@@ -60,3 +60,12 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{/*
+Create a fully qualified app name per service.
+Usage: {{ include "helm.appname" (dict "ctx" . "svc" "frontend") }}
+*/}}
+{{- define "helm.appname" -}}
+{{- $name := include "helm.name" .ctx -}}
+{{- printf "%s-%s" $name .svc | trunc 63 | trimSuffix "-" }}
+{{- end }}
