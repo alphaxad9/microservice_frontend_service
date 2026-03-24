@@ -11,7 +11,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  IMAGE_NAME: frontend-service
+  IMAGE_NAME: booking_microservice_frontend
   REGISTRY: ghcr.io
 
 jobs:
@@ -42,7 +42,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/${{ github.repository_owner }}/frontend-service
+          images: ghcr.io/${{ github.repository_owner }}/booking_microservice_frontend
           tags: |
             type=sha,format=long
             type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
@@ -64,7 +64,7 @@ jobs:
       - name: Trivy scan
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: ghcr.io/${{ github.repository_owner }}/frontend-service:sha-${{ github.sha }}
+          image-ref: ghcr.io/${{ github.repository_owner }}/booking_microservice_frontend:sha-${{ github.sha }}
           format: sarif
           output: trivy.sarif
           severity: CRITICAL,HIGH
