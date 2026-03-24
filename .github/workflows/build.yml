@@ -62,7 +62,7 @@ jobs:
             REACT_APP_POSTS_SERVICE_URL=http://post-service.post-service.svc.cluster.local:8080/api/v1/
 
       - name: Trivy scan
-        uses: aquasecurity/trivy-action@0.24.0
+        uses: aquasecurity/trivy-action@master
         with:
           image-ref: ghcr.io/${{ github.repository_owner }}/frontend-service:sha-${{ github.sha }}
           format: sarif
