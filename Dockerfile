@@ -5,52 +5,37 @@ FROM node:18-alpine AS builder
 
 WORKDIR /app
 
-# Prevent npm from being noisy / slow
+# Reduce noise / speed up
 ENV npm_config_loglevel=warn
 ENV CI=true
 
-# Copy only dependency files first (cache optimization)
+# Install dependencies first (better caching)
 COPY package.json package-lock.json ./
+RUN npm ci --no-audit --no-fund
 
-# Install dependencies (deterministic + faster)
-RUN npm config set fetch-retries 5 \
- && npm config set fetch-retry-mintimeout 20000 \
- && npm config set fetch-retry-maxtimeout 120000 \
- && npm ci --no-audit --no-fund
-
-# Copy source code
+# Copy rest of app
 COPY . .
 
-# Build args
-ARG REACT_APP_API_BASE_URL
-ARG REACT_APP_ROOM_SERVICE_URL
-ARG REACT_APP_BOOKING_SERVICE_URL
-ARG REACT_APP_POSTS_SERVICE_URL
-
-# Inject build env
-ENV REACT_APP_API_BASE_URL=$REACT_APP_API_BASE_URL
-ENV REACT_APP_ROOM_SERVICE_URL=$REACT_APP_ROOM_SERVICE_URL
-ENV REACT_APP_BOOKING_SERVICE_URL=$REACT_APP_BOOKING_SERVICE_URL
-ENV REACT_APP_POSTS_SERVICE_URL=$REACT_APP_POSTS_SERVICE_URL
-
-# Build production bundle
+# Build React app
 RUN npm run build
 
 
 # =========================
-# Stage 2 — Ultra Lightweight Runtime
+# Stage 2 — Nginx Runtime
 # =========================
 FROM nginx:1.27-alpine
 
-# Remove default nginx static files
-RUN rm -rf /usr/share/nginx/html/*
+# Remove default config
+RUN rm -rf /etc/nginx/conf.d/default.conf
 
-# Copy built React app
-COPY --from=builder /app/build /usr/share/nginx/html
-
-# Copy custom nginx config (optional but recommended)
+# Copy your custom nginx config
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
+# Copy build output
+COPY --from=builder /app/build /usr/share/nginx/html
+
+# Expose port
 EXPOSE 80
 
+# Start nginx
 CMD ["nginx", "-g", "daemon off;"]
