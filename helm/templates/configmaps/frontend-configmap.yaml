@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.configMap.name }}
+  labels:
+    app: frontend
+    app.kubernetes.io/component: frontend
+data:
+  NODE_ENV: {{ .Values.config.frontend.nodeEnv | quote }}
