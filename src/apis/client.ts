@@ -11,6 +11,13 @@ export const client = axios.create({
         'Content-Type': 'application/json'
     }
 });
+// export const client = axios.create({
+//     baseURL: `http://127.0.0.1:8000/zedvye_one`,
+//     withCredentials: true,
+//     headers: {
+//         'Content-Type': 'application/json'
+//     }
+// });
 
 // Room service client
 export const roomServiceClient = axios.create({
